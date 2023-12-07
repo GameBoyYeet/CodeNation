@@ -1,3 +1,3 @@
 # CodeNation
 
-A little program in my high school for coding. I'm keeping all of the classwork/homework here!
+A coding initiative in my high school. My classwork/homework lives here! (Not affiliated with [Code Nation](https://www.codenation.org))
