@@ -133,9 +133,14 @@ def main():
     ]
     n=10
 
+    # Extra: Stop program when grid stabilizes
     while True:
+        last_grid = grid
         grid = update_grid(n,grid)
         print_grid(n,grid)
+        if last_grid == grid:
+          print("Grid has stabilized, stopping")
+          break
         time.sleep(1/5)
         clear_screen()
 
