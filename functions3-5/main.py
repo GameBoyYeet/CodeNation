@@ -3,6 +3,9 @@ from os import name, system
 player_turn = 1
 
 def check_player_win(grid: list) -> int:
+    if ' ' not in grid:
+        return -1
+    
     for x in grid:
         if x[0] == x[1] == x[2] and x[0] in ['X', 'O']:
             if x[0] == 'X':
@@ -64,10 +67,15 @@ def main():
         print_grid(grid)
         if check_player_win(grid) == 1:
             print("Player 1 won!")
+            exit()
         elif check_player_win(grid) == 2:
             print("Player 2 won!")
+            exit()
+        elif check_player_win(grid) == -1:
+            print("Tie!")
+            exit()
         else:
-            print("NO ONE WON")
+            print("Debug: No one won yet")
         grid = update_grid(user_prompt(grid), grid)
 
 if __name__ == "__main__":
