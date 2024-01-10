@@ -1,7 +1,15 @@
-from os import name,system
+from os import name, system
 
 player_turn = 1
-emoji_mode = 0
+
+def check_player_win(grid: list) -> int:
+    for x in grid:
+        if x[0] == x[1] == x[2] and x[0] in ['X', 'O']:
+            if x[0] == 'X':
+                return 1
+            elif x[1] == 'O':
+                return 2
+    return 0
 
 def print_grid(grid: list) -> None:
     system('clear' if name == 'posix' else 'cls')
@@ -15,7 +23,6 @@ def print_grid(grid: list) -> None:
     print(bchar*7)
 
 def user_prompt(grid: list) -> tuple:
-    global emoji_mode
     global player_turn
     print("Player 1's turn!") if player_turn == 1 else print("Player 2's turn!")
     while True:
@@ -33,29 +40,19 @@ def user_prompt(grid: list) -> tuple:
             print()
             exit()
         except:
-            if move == "emoji":
-                emoji_mode = 1
-                print("Emoji mode activated!")
-            elif move == "text":
-                print("Emoji mode deactivated!")
-                emoji_mode = 0
             continue
 
     return move
 
 def update_grid(move: tuple, grid: list) -> list:
-    global emoji_mode
     global player_turn
     newgrid = grid
 
-    player1char = '\U0000274C' if emoji_mode == 1 else 'X'
-    player2char = '\U0001F1F4' if emoji_mode == 1 else 'O'
-
     if player_turn == 1:
-        newgrid[move[1]-1][move[0]-1] = player1char
+        newgrid[move[1]-1][move[0]-1] = 'X'
         player_turn = 2
     elif player_turn == 2:
-        newgrid[move[1]-1][move[0]-1] = player2char
+        newgrid[move[1]-1][move[0]-1] = 'O'
         player_turn = 1
     
     return newgrid
@@ -65,6 +62,12 @@ def main():
     grid = [[' ' for i in range(3)] for j in range(3)]
     while True:
         print_grid(grid)
+        if check_player_win(grid) == 1:
+            print("Player 1 won!")
+        elif check_player_win(grid) == 2:
+            print("Player 2 won!")
+        else:
+            print("NO ONE WON")
         grid = update_grid(user_prompt(grid), grid)
 
 if __name__ == "__main__":
