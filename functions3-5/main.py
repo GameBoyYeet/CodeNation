@@ -7,11 +7,18 @@ def check_player_win(grid: list) -> int:
         return -1
     
     for x in grid:
+        # Horizontal check
         if x[0] == x[1] == x[2] and x[0] in ['X', 'O']:
             if x[0] == 'X':
                 return 1
             elif x[1] == 'O':
                 return 2
+        for y in x:
+            if y[0] == y[1] == y[2] and y[0] in ['X', 'O']:
+                if y[0] == 'X':
+                    return 1
+                elif y[0] == 'O':
+                    return 2
     return 0
 
 def print_grid(grid: list) -> None:
