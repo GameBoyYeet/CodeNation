@@ -3,22 +3,41 @@ from os import name, system
 player_turn = 1
 
 def check_player_win(grid: list) -> int:
-    if ' ' not in grid:
+    # Return -1 if tie
+    # Return 1 if Player 1 win
+    # Return 2 if Player 2 win
+    # Return 0 if none
+
+    if not any(' ' in sublist for sublist in grid):
         return -1
     
-    for x in grid:
-        # Horizontal check
-        if x[0] == x[1] == x[2] and x[0] in ['X', 'O']:
+    for x in grid: # Horizontal check
+        if x[0] == x[1] == x[2]:
             if x[0] == 'X':
                 return 1
             elif x[1] == 'O':
                 return 2
-        for y in x:
-            if y[0] == y[1] == y[2] and y[0] in ['X', 'O']:
-                if y[0] == 'X':
-                    return 1
-                elif y[0] == 'O':
-                    return 2
+    
+    for x in range(3): # Vertical check
+        if grid[0][x] == grid[1][x] == grid[2][x]:
+            if grid[0][x] == 'X':
+                return 1
+            elif grid[0][x] == 'O':
+                return 2
+            
+    if grid[0][0] == grid[1][1] == grid[2][2]: # Diagonal check 1
+        if grid[0][0] == 'X':
+            return 1
+        if grid[0][0] == 'O':
+            return 2
+            
+    if grid[0][2] == grid[1][1] == grid[2][0]:
+        if grid[0][2] == 'X':
+            return 1
+        elif grid[0][2] == 'O':
+            return 2
+
+
     return 0
 
 def print_grid(grid: list) -> None:
@@ -81,8 +100,6 @@ def main():
         elif check_player_win(grid) == -1:
             print("Tie!")
             exit()
-        else:
-            print("Debug: No one won yet")
         grid = update_grid(user_prompt(grid), grid)
 
 if __name__ == "__main__":
