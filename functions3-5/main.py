@@ -1,15 +1,18 @@
 from os import name, system
 
 player_turn = 1
+move_char = {1: "X", 2: "O"}
+
+def check_tie(grid: list) -> int:
+    if not any(' ' in sublist for sublist in grid):
+        return 1
+
+    return 0
 
 def check_player_win(grid: list) -> int:
-    # Return -1 if tie
     # Return 1 if Player 1 win
     # Return 2 if Player 2 win
     # Return 0 if none
-
-    if not any(' ' in sublist for sublist in grid):
-        return -1
     
     for x in grid: # Horizontal check
         if x[0] == x[1] == x[2]:
@@ -37,7 +40,6 @@ def check_player_win(grid: list) -> int:
         elif grid[0][2] == 'O':
             return 2
 
-
     return 0
 
 def print_grid(grid: list) -> None:
@@ -52,11 +54,10 @@ def print_grid(grid: list) -> None:
     print(bchar*7)
 
 def user_prompt(grid: list) -> tuple:
-    global player_turn
-    print("Player 1's turn!") if player_turn == 1 else print("Player 2's turn!")
+    print(f"Player {player_turn}'s turn!")
     while True:
         try:
-            move = input("Put an X on (Example: 1,3): ") if player_turn == 1 else input("Put an O on (Example: 1,3): ")
+            move = input(f"Put an {move_char[player_turn]} on (Example: 1,3): ")
             move = tuple(map(int, move.split(',')))
             if 1 <= move[0] <=3 and 1 <= move[1] <= 3:
                 if grid[move[1]-1][move[0]-1] != ' ':
@@ -97,7 +98,7 @@ def main():
         elif check_player_win(grid) == 2:
             print("Player 2 won!")
             exit()
-        elif check_player_win(grid) == -1:
+        elif check_tie(grid) == 1:
             print("Tie!")
             exit()
         grid = update_grid(user_prompt(grid), grid)
