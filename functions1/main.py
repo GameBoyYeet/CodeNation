@@ -54,13 +54,13 @@ def funky(n):
 # Part F
 
 def give_char(n):
-    if n >= 0 and n <= 25:
+    if 0 <= n <= 25:
         return chr(n + 97)
 
 
 # Part G
 
-def alphabet():
+def alphabet() -> list:
     alpha = []
     for i in range(25):
         alpha.append(give_char(i))
@@ -70,3 +70,20 @@ def alphabet():
 # Part H
 
 def equalfunky(m):
+    for n in range(m):
+        if funky(n) == m:
+            return n
+        elif funky(n) > m:
+            return -1
+
+# Part I
+def most_frequent(string: str):
+    current_count = 0
+    old_count = 0
+    frequent_letter = ''
+    for x in alphabet():
+        current_count = count_letter(string, x)
+        if current_count > old_count:
+            frequent_letter = x
+
+    return alphabet()[frequent_letter]
