@@ -1,147 +1,106 @@
-# Part A: Sum of tuples
+from os import name, system
 
-def sum_within_tuples(tuples: list) -> list:
-  sums = []
-  for x in tuples:
-    sums.append(sum(x))
-  return sums
+player_turn = 1
 
-# Part B: Friend calculator
+def check_player_win(grid: list) -> int:
+    # Return -1 if tie
+    # Return 1 if Player 1 win
+    # Return 2 if Player 2 win
+    # Return 0 if none
 
-def friend_calculator(friendships: list, n: int) -> list:
-  people = []
-  friend_counts = []
+    if not any(' ' in sublist for sublist in grid):
+        return -1
+    
+    for x in grid: # Horizontal check
+        if x[0] == x[1] == x[2]:
+            if x[0] == 'X':
+                return 1
+            elif x[1] == 'O':
+                return 2
+    
+    for x in range(3): # Vertical check
+        if grid[0][x] == grid[1][x] == grid[2][x]:
+            if grid[0][x] == 'X':
+                return 1
+            elif grid[0][x] == 'O':
+                return 2
+            
+    if grid[0][0] == grid[1][1] == grid[2][2]: # Diagonal check 1
+        if grid[0][0] == 'X':
+            return 1
+        if grid[0][0] == 'O':
+            return 2
+            
+    if grid[0][2] == grid[1][1] == grid[2][0]:
+        if grid[0][2] == 'X':
+            return 1
+        elif grid[0][2] == 'O':
+            return 2
 
-  # Create a list of people in the given friendships list
-  
-  for x in range(n):
-    people.append(x)
 
-  # Count how many times a person occurs in the given friendships list
-  
-  for x in people:
-    friend_counts.append(0)
-    for tup in friendships:
-      if x in tup:
-        friend_counts[-1] += 1
+    return 0
 
-  return friend_counts
+def print_grid(grid: list) -> None:
+    system('clear' if name == 'posix' else 'cls')
+    bchar = '#'
+    print(bchar*7)
+    for x in range(3):
+        for y in range(3):
+            print(bchar, end="")
+            print(grid[x][y], end="")
+        print(bchar)
+    print(bchar*7)
 
-# Conway's Game of Life
+def user_prompt(grid: list) -> tuple:
+    global player_turn
+    print("Player 1's turn!") if player_turn == 1 else print("Player 2's turn!")
+    while True:
+        try:
+            move = input("Put an X on (Example: 1,3): ") if player_turn == 1 else input("Put an O on (Example: 1,3): ")
+            move = tuple(map(int, move.split(',')))
+            if 1 <= move[0] <=3 and 1 <= move[1] <= 3:
+                if grid[move[1]-1][move[0]-1] != ' ':
+                    print("This spot is already taken.")
+                    continue
+                break
+            else:
+                continue
+        except KeyboardInterrupt:
+            print()
+            exit()
+        except:
+            continue
 
-# Part C1: Check if point is valid
+    return move
 
-def is_valid_indices(x: int, y: int, n: int) -> bool:
-  return 0 <= x < n and 0 <= y < n
+def update_grid(move: tuple, grid: list) -> list:
+    global player_turn
+    newgrid = grid
 
-# Part C2: Check if square is populated
+    if player_turn == 1:
+        newgrid[move[1]-1][move[0]-1] = 'X'
+        player_turn = 2
+    elif player_turn == 2:
+        newgrid[move[1]-1][move[0]-1] = 'O'
+        player_turn = 1
+    
+    return newgrid
 
-def is_populated(x: int, y: int, n: int, grid: list) -> bool:
-  return is_valid_indices(x, y, n) and not grid[x][y] == ' '
-
-# Part C3: Get neighbors of square
-
-def get_neighbors(x: int, y: int) -> list:
-  neighbors = []
-
-  for i in range(-1, 2):
-      if i == 0: # A cell is not a neighbor of itself!
-        continue
-
-      neighbors.append((x,y+i))
-      neighbors.append((x+i,y))
-      neighbors.append((x+i,y+i))
-      neighbors.append((x+i,y-i))
-  
-  return neighbors
-
-# Part C4: Number of populated neighbors
-
-def num_populated_neighbors(x: int, y: int, n: int, grid: list) -> int:
-  num_populated_neighbors = 0
-  
-  for j in get_neighbors(x,y):
-    if is_populated(j[0], j[1], n, grid):
-      num_populated_neighbors += 1
-  
-  return num_populated_neighbors
-
-# Part C5: Determine if square lives
-
-def will_live(x: int, y: int, n: int, grid: list) -> bool:
-  populated_neighbors = num_populated_neighbors(x, y, n, grid)
-
-  if is_populated(x, y, n, grid):
-    if populated_neighbors in [2, 3]:
-      return True
-  else:
-    if populated_neighbors == 3:
-      return True
-  
-  return False
-
-# Part C6: Update grid
-def update_grid(n: int, grid: list) -> list:
-  new_grid = [[' ' for i in range(n)] for j in range(n)]
-
-  for x in range(n):
-    for y in range(n):
-      if will_live(x, y, n, grid):
-        new_grid[x][y] = '+'
-  
-  return new_grid
-
-# Part C7: Grid to string and print grid
-def list_to_string(input: list) -> str:
-  output = ''
-
-  for i in range(len(input)):
-    output += input[i]
-
-  return output
-
-def print_grid(n: int, grid: list) -> None:
-  bchar = "#"
-
-  print(bchar * (n+2))
-  for i in range(n):
-    print(bchar + list_to_string(grid[i]) + bchar)
-  print(bchar * (n+2))
-
-# Part C8: Run Conway's Game of Life
-
-import os
-import time
-
-def clear_screen():
-    # Check the operating system and use the appropriate command to clear the screen
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 def main():
-    # Glider to easily test program
-    grid = [
-        [' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' '],
-        [' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' '],
-        [' ', ' ', ' ', ' ','+', ' ', ' ', ' ',' ', ' '],
-        [' ', ' ', ' ', ' ',' ', '+', ' ', ' ',' ', ' '],
-        [' ', ' ', ' ', '+','+', '+', ' ', ' ',' ', ' '],
-        [' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' '],
-        [' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' '],
-        [' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' '],
-        [' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' '],
-        [' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' '],
-    ]
-    n=10
-
-    # Extra: Stop program when grid stabilizes
+    grid = [[' ' for i in range(3)] for j in range(3)]
     while True:
-        last_grid = grid
-        grid = update_grid(n,grid)
-        print_grid(n,grid)
-        if last_grid == grid:
-          print("Grid has stabilized, stopping")
-          break
-        time.sleep(1/5)
-        clear_screen()
+        print_grid(grid)
+        if check_player_win(grid) == 1:
+            print("Player 1 won!")
+            exit()
+        elif check_player_win(grid) == 2:
+            print("Player 2 won!")
+            exit()
+        elif check_player_win(grid) == -1:
+            print("Tie!")
+            exit()
+        grid = update_grid(user_prompt(grid), grid)
 
-main()
+if __name__ == "__main__":
+    main()
