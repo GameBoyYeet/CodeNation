@@ -18,7 +18,7 @@ def check_valid_negative_sign(string: str) -> bool:
         # If more than 1 negative is in string, return false
         return False
     else:
-        # If 1 or less negatives are in string, return if negative is not found or at first character
+        # If 1 or fewer negatives are in string, return if negative is not found or at first character
         return negative == -1 or negative == 0
 
 
@@ -95,8 +95,8 @@ def get_number(message_to_output: str) -> float:
 
 def get_number_bounded(message_to_output: str, min_value: float, max_value: float) -> float:
     while True:
-        number = input("Input: ")
-        if is_number(input) and number >= min_value and number <= max_value:
+        number = float(input("Input: "))
+        if is_number(input) and min_value <= number <= max_value:
             break
 
     return float(number)
@@ -129,3 +129,4 @@ def is_valid_equation(string: str) -> bool:
         return True
     else:
         return False
+while True: print(is_valid_equation(input("Input:")))
