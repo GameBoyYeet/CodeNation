@@ -2,3 +2,4 @@ test*.py
 .vscode
 .devcontainer
 .idea
+/.run/main.run.xml
