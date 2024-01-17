@@ -2,7 +2,6 @@
 from random import randint
 import pygame
 from sys import exit
-
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
