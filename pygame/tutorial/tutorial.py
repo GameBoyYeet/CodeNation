@@ -15,10 +15,14 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom = (200, 300))
         self.gravity = 0
 
+        self.jump_sound = pygame.mixer.Sound("audio/jump.mp3")
+        self.jump_sound.set_volume(0.1)
+
     def player_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE] and self.rect.bottom >= 300:
             self.gravity = -20
+            self.jump_sound.play()
 
     def apply_gravity(self):
         self.gravity += 1
@@ -33,6 +37,7 @@ class Player(pygame.sprite.Sprite):
             if self.player_index >= len(self.player_walk): self.player_index = 0
             self.image = self.player_walk[int(self.player_index)]
 
+    
     def update(self):
         self.player_input()
         self.apply_gravity()
@@ -100,7 +105,10 @@ def collisions(player: pygame.Rect, obstacle_list):
     return True
 
 def collision_sprite():
-    pygame.sprite.spritecollide(player.sprite, obstacle_group, )
+    if pygame.sprite.spritecollide(player.sprite, obstacle_group, False):
+        obstacle_group.empty()
+        return False
+    else: return True
 
 pygame.init()
 screen = pygame.display.set_mode((800, 400))
@@ -110,6 +118,8 @@ font = pygame.font.Font("font/Pixeltype.ttf", 100)
 game_active = False
 start_time = 0
 score = 0
+bg_music = pygame.mixer.Sound('audio/music.wav')
+bg_music.play(loops = -1)
 
 # Groups
 player = pygame.sprite.GroupSingle()
@@ -205,8 +215,12 @@ while True:
         obstacle_group.draw(screen)
         obstacle_group.update()
 
+        # Collision
+        game_active = collision_sprite()
+
         # Obstacle movement
         obstacle_rect_list = obstacle_movement(obstacle_rect_list)
+
     else:
         start_time = pygame.time.get_ticks()
         screen.fill((94, 129, 162))
