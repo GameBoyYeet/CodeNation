@@ -93,6 +93,9 @@ def update_score():
             score += 1
             counted_obstacles.append(obstacle)
 
+    for x in counted_obstacles:
+        if x not in obstacle_group: obstacle_group.remove(x)
+
 def obstacle_movement(obstacle_list):
     if obstacle_list:
         for obstacle_rect in obstacle_list:
