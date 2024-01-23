@@ -1,7 +1,11 @@
 # Based on https://https://www.youtube.com/watch?v=AY9MnQ4x3zk with modifications
+# Enemy-based point system
+# Added "better" sounds
+
 from random import randint
 import pygame
 from sys import exit
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -15,8 +19,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom = (200, 300))
         self.gravity = 0
 
-        self.jump_sound = pygame.mixer.Sound("audio/jump.mp3")
-        self.jump_sound.set_volume(0.1)
+        self.jump_sound = pygame.mixer.Sound("audio/fire-in-the-hole.mp3")
+        self.jump_sound.set_volume(0.3)
 
     def player_input(self):
         keys = pygame.key.get_pressed()
@@ -37,7 +41,7 @@ class Player(pygame.sprite.Sprite):
             if self.player_index >= len(self.player_walk): self.player_index = 0
             self.image = self.player_walk[int(self.player_index)]
 
-    
+
     def update(self):
         self.player_input()
         self.apply_gravity()
@@ -77,12 +81,17 @@ class Obstacle(pygame.sprite.Sprite):
             self.kill()
 
 def display_score():
-    current_time = int((pygame.time.get_ticks() - start_time) / 1000)
-    score_surf = font.render(str(current_time), False, (64, 64, 64))
+    score_surf = font.render(str(score), False, (64, 64, 64))
     score_rect = score_surf.get_rect(center=(400, 50))
     screen.blit(score_surf, score_rect)
-    return current_time
 
+def update_score():
+    global score
+    global counted_obstacles
+    for obstacle in obstacle_group:
+        if obstacle not in counted_obstacles and obstacle.rect.right < player.sprite.rect.left:
+            score += 1
+            counted_obstacles.append(obstacle)
 
 def obstacle_movement(obstacle_list):
     if obstacle_list:
@@ -105,8 +114,10 @@ def collisions(player: pygame.Rect, obstacle_list):
     return True
 
 def collision_sprite():
+    global score
     if pygame.sprite.spritecollide(player.sprite, obstacle_group, False):
         obstacle_group.empty()
+        score = 0
         return False
     else: return True
 
@@ -115,11 +126,16 @@ screen = pygame.display.set_mode((800, 400))
 pygame.display.set_caption("Tutorial")
 clock = pygame.time.Clock()
 font = pygame.font.Font("font/Pixeltype.ttf", 100)
+small_font = pygame.font.Font("font/Pixeltype.ttf", 75)
 game_active = False
 start_time = 0
 score = 0
-bg_music = pygame.mixer.Sound('audio/music.wav')
+bg_music = pygame.mixer.Sound('audio/fnafbeatbox.mp3')
+bg_music.set_volume(0.2)
 bg_music.play(loops = -1)
+death_sound = pygame.mixer.Sound('audio/death.mp3')
+play_death = False
+counted_obstacles = []
 
 # Groups
 player = pygame.sprite.GroupSingle()
@@ -160,7 +176,7 @@ player_stand = pygame.image.load('graphics/Player/player_stand.png').convert_alp
 player_stand = pygame.transform.rotozoom(player_stand, 0, 2)
 player_stand_rect = player_stand.get_rect(center=(400, 200))
 
-game_title = font.render('Pygame Runner', False, 'Black')
+game_title = small_font.render('Pygame Runner (Best with sound)', False, 'Black')
 game_title_rect = game_title.get_rect(center=(400, 50))
 game_message = font.render('Press space to jump', False, 'Black')
 game_message_rect = game_message.get_rect(center=(400, 330))
@@ -196,6 +212,7 @@ while True:
                 fly_surf = fly_frames[fly_index]
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                play_death = True
                 game_active = True
 
 
@@ -206,7 +223,8 @@ while True:
         # pygame.draw.rect(screen, '#c0e8ec', score_rect)
         # pygame.draw.rect(screen, '#c0e8ec', score_rect, 10)
         # screen.blit(score_surf, score_rect)
-        score = display_score()
+        update_score()
+        display_score()
 
         # Player
         player.draw(screen)
@@ -220,8 +238,11 @@ while True:
 
         # Obstacle movement
         obstacle_rect_list = obstacle_movement(obstacle_rect_list)
-
     else:
+        score = 0
+        if play_death:
+            death_sound.play()
+            play_death = False
         start_time = pygame.time.get_ticks()
         screen.fill((94, 129, 162))
         screen.blit(game_title, game_title_rect)
