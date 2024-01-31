@@ -37,20 +37,19 @@ def game_loop(score_required_to_win):
                 pygame.quit()
                 quit()
 
-        # Draw background
-        screen.fill(background_color)
-
-        # Draw scoreboard
-        score_surf = font.render("SCORE")
-        screen.blit(score_surf)
-
-        # Update the two paddles.
+        # TODO: Draw background
         ...
 
-        # Update the ball
+        # TODO: Draw scoreboard
         ...
 
-        # Check if a player has won, and if so print which player won, and exit the game (return).
+        # TODO: Update the two paddles.
+        ...
+
+        # TODO: Update the ball
+        ...
+
+        # TODO: Check if a player has won, and if so print which player won, and exit the game (return).
         #   This should take <10 lines of code (assuming you don't make it more fancy)
         ...
 
@@ -73,11 +72,11 @@ def draw_scoreboard(score_1, score_2):
 
 
 def draw_background():
-    # Fill in the background color, with background_color.
+    # TODO: Fill in the background color, with background_color.
     #   Do this code first.
     ...
 
-    # Draw some gray dotted line in the (vertical) middle
+    # TODO: Draw some gray dotted line in the (vertical) middle
     #   You will want to use a loop for this, and draw lines/rectangles to do so.
     #   Do this step after getting rest of code done.
     ...
@@ -107,7 +106,7 @@ class Paddle:
         self.draw()
 
     def move_on_input(self, dt):
-        # Get user input (make use of self.up_key, self.down_key)
+        # TODO: Get user input (make use of self.up_key, self.down_key)
         #   then move self.y based on it (remember to multiply by incr_amount*dt)
         ...
 
@@ -128,6 +127,7 @@ class Paddle:
         return self.y - self.height / 2
 
     def get_y_high(self):
+        # TODO: get_y_high
         return ...
 
 
@@ -147,7 +147,10 @@ class Ball:
         ...
 
         # Initialize radius, speed_x, color, and border_width class variables.
-        ...
+        self.radius = radius
+        self.speed_x = speed_x
+        self.color = color
+        self.border_width = border_width
 
     def update(self, dt, *, paddle_left, paddle_right):
         # Call the functions needed for updating.
@@ -200,9 +203,9 @@ class Ball:
         Flips ball direction, resets position of ball.
         """
 
-        # Flip the x velocity (so the person who scored, has ball sent their way)
+        # TODO: Flip the x velocity (so the person who scored, has ball sent their way)
         ...
-        # Set vy to some random multiple of vx.
+        # TODO: Set vy to some random multiple of vx.
         ...
 
         # This is why we initialized x_value_to_reset_to and y_value_to_reset_to!
@@ -257,6 +260,5 @@ class Ball:
     def set_y_high(self, num):
         self.y = num - self.radius
 
-
 # Call the game loop, with some initial amount.
-...
+game_loop(3)
