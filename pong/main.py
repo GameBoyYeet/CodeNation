@@ -11,6 +11,9 @@ screen = pygame.display.set_mode((width, height))
 
 background_color = (0, 0, 0)
 
+player_1_score = 0
+player_2_score = 0
+
 # Make sure your game operates on same speed, regardless of fps.
 fps = 60
 clock = pygame.time.Clock()
@@ -37,21 +40,29 @@ def game_loop(score_required_to_win):
                 pygame.quit()
                 quit()
 
-        # TODO: Draw background
-        ...
+        # Draw background
+        draw_background()
 
-        # TODO: Draw scoreboard
-        ...
+        # Draw scoreboard
+        draw_scoreboard(player_1_score, player_2_score)
 
-        # TODO: Update the two paddles.
-        ...
+        # Update the two paddles.
+        paddle_1.update(1/fps)
+        paddle_2.update(1/fps)
 
-        # TODO: Update the ball
-        ...
+        # Update the ball
+        ball.update(1/fps, paddle_left=paddle_1, paddle_right=paddle_2)
 
-        # TODO: Check if a player has won, and if so print which player won, and exit the game (return).
+        # Check if a player has won, and if so print which player won, and exit the game (return).
         #   This should take <10 lines of code (assuming you don't make it more fancy)
-        ...
+        if player_1_score == score_required_to_win:
+            print("Player 1 won!")
+            pygame.quit()
+            quit()
+        elif player_2_score == score_required_to_win:
+            print("Player 2 won!")
+            pygame.quit()
+            quit()
 
         # This is neccessary code to see screen updated.
         pygame.display.update()
@@ -72,14 +83,22 @@ def draw_scoreboard(score_1, score_2):
 
 
 def draw_background():
-    # TODO: Fill in the background color, with background_color.
+    # Fill in the background color, with background_color.
     #   Do this code first.
-    ...
+    screen.fill(background_color)
 
-    # TODO: Draw some gray dotted line in the (vertical) middle
+    # Draw some gray dotted line in the (vertical) middle
     #   You will want to use a loop for this, and draw lines/rectangles to do so.
     #   Do this step after getting rest of code done.
-    ...
+    dotRect = pygame.Rect(0, 0, 5, 5)
+    dot_x = screen.get_width() / 2
+    dot_y = 0
+    while True:
+        dotRect.center = (dot_x, dot_y)
+        pygame.draw.rect(screen, (255,255,255), dotRect)
+        dot_y += 20
+        if dot_y > screen.get_height():
+            break
 
 
 class Paddle:
@@ -100,35 +119,43 @@ class Paddle:
 
         self.color = color
         self.border_width = border_width
+        self.rect = pygame.draw.rect(screen, self.color, [self.get_x_low(), self.get_y_low(), self.width, self.height],
+                         self.border_width)
 
     def update(self, dt):
         self.move_on_input(dt)
         self.draw()
 
     def move_on_input(self, dt):
-        # TODO: Get user input (make use of self.up_key, self.down_key)
-        #   then move self.y based on it (remember to multiply by incr_amount*dt)
-        ...
+        keys = pygame.key.get_pressed()
+        # Get user input (make use of self.up_key, self.down_key)
+        #   then move self.y based on it (remember to multiply by self.speed*dt)
+        if keys[self.down_key]:
+            if self.rect.bottom < screen.get_height():
+                self.y += self.speed * dt
+        elif keys[self.up_key]:
+            if self.rect.top > 0:
+                self.y -= self.speed * dt
+
 
     def draw(self):
-        pygame.draw.rect(screen, self.color, [self.get_x_low(), self.get_y_low(), self.width, self.height],
-                         self.border_width)
+        self.rect = pygame.draw.rect(screen, self.color, [self.get_x_low(), self.get_y_low(), self.width, self.height],
+                                     self.border_width)
 
     # Later on, we will learn the Pythonic way to do it, but for now we will use more Java-style ones.
 
     def get_x_low(self):
-        return ...
+        return self.x - self.width / 2
 
     def get_x_high(self):
-        return ...
+        return self.x - self.width / 2
 
     def get_y_low(self):
         # This is actually the top of the figure (vertically inverted display)
         return self.y - self.height / 2
 
     def get_y_high(self):
-        # TODO: get_y_high
-        return ...
+        return self.y + self.height / 2
 
 
 class Ball:
@@ -144,18 +171,25 @@ class Ball:
         # Initialize some velocity variables (one for x velocity, one for y)
         #   set the y velocity to be some multiple of the x velocity.
         #   use sensible naming
-        ...
+        self.vx = 200
+        self.vy = random.uniform(0.5, 2) * self.vx
 
         # Initialize radius, speed_x, color, and border_width class variables.
         self.radius = radius
         self.speed_x = speed_x
         self.color = color
         self.border_width = border_width
+        self.rect = pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius, self.border_width)
 
     def update(self, dt, *, paddle_left, paddle_right):
         # Call the functions needed for updating.
         #   Hint: There are 6 functions total to be called (including repeated calls)
-        ...
+        self.move(dt)
+        self.draw()
+        self.account_score_increases(paddle_left, paddle_right)
+        self.account_for_paddle_collision(paddle_left)
+        self.account_for_paddle_collision(paddle_right)
+        self.account_for_vertical_screen_collision()
 
     def move(self, dt):
         self.x += self.vx * dt
@@ -164,7 +198,7 @@ class Ball:
     def draw(self):
         # Draw a pygame circle, with the self.color, self.x, self.y, self.radius, and self.border_width
         #   use the (global) screen variable.
-        ...
+        self.rect = pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius, self.border_width)
 
     def account_for_paddle_collision(self, paddle: Paddle) -> None:
         """
@@ -185,53 +219,38 @@ class Ball:
             self.set_y_low(0)
 
             # Modify velocity variable.
-            ...
+            self.vy = -self.vy
         if self.get_y_high() > height:
-            # Fill in code.
-            ...
+            self.set_y_high(height)
+            self.vy = -self.vy
 
     def account_score_increases(self, left_paddle: Paddle, right_paddle: Paddle):
         if self.get_x_low() < 0:
             # Reset ball, increment the right paddle's score.
-            ...
-        if self.get_x_high() > width:
-            # Fill in code.
-            ...
+            global player_2_score
+            self.reset_ball()
+            player_2_score += 1
+        elif self.get_x_high() > width:
+            global player_1_score
+            self.reset_ball()
+            player_1_score += 1
 
     def reset_ball(self):
         """
         Flips ball direction, resets position of ball.
         """
 
-        # TODO: Flip the x velocity (so the person who scored, has ball sent their way)
-        ...
-        # TODO: Set vy to some random multiple of vx.
-        ...
+        # Flip the x velocity (so the person who scored, has ball sent their way)
+        self.vx = -self.vx
+        # Set vy to some random multiple of vx.
+        self.vy = random.uniform(0.5, 2) * self.vx
 
         # This is why we initialized x_value_to_reset_to and y_value_to_reset_to!
         self.x = self.x_value_to_reset_to
         self.y = self.y_value_to_reset_to
 
     def does_collide(self, paddle):
-        # Try and understand what's happening here.
-        #   If you can't, then rewrite separate code which handles collision
-
-        # For every point on the ball's bounding square,
-        for point in self.get_points():
-
-            # Check if said point is inside the paddle.
-            if paddle.get_x_low() < point[0] < paddle.get_x_high() and paddle.get_y_low() < point[1] < \
-                    paddle.get_y_high():
-                return True
-        return False
-
-    def get_points(self):
-        # This does make things scuffed, as circle is essentially treated as a square
-
-        return [(self.get_x_low(), self.get_y_low()),
-                (self.get_x_low(), self.get_y_high()),
-                (self.get_x_high(), self.get_y_high()),
-                (self.get_x_high(), self.get_y_low())]
+        return self.rect.colliderect(paddle.rect)
 
     # Later on, we will learn the Pythonic way to do it, but for now we will use more Java-style ones.
 
