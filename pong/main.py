@@ -21,6 +21,60 @@ clock = pygame.time.Clock()
 font_size = 72
 font = pygame.font.SysFont("arial", font_size)
 
+small_font_size = 50
+small_font = pygame.font.SysFont("arial", small_font_size)
+
+def main_menu():
+    centerwidth = screen.get_width() / 2
+    centerheight = screen.get_height() / 2
+
+    titleobj = font.render("Pong", True, "white")
+    titlerect = titleobj.get_rect(center=(centerwidth, centerheight))
+
+    playobj = small_font.render("Press space to play", True, "white")
+    playrect = playobj.get_rect(center=(centerwidth, centerheight * 1.5))
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                game_loop(3)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+        screen.fill(background_color)
+        screen.blit(titleobj, titlerect)
+        screen.blit(playobj, playrect)
+        pygame.display.update()
+
+def end_screen(player_won):
+    centerwidth = screen.get_width() / 2
+    centerheight = screen.get_height() / 2
+
+    winobj = font.render(f"Player {player_won} won!", True, "white")
+    winrect = winobj.get_rect(center=(centerwidth, centerheight))
+
+    playobj = small_font.render("Press space to play again", True, "white")
+    playrect = playobj.get_rect(center=(centerwidth, centerheight * 1.5))
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    quit()
+                if event.key == pygame.K_SPACE:
+                    print("restarting game")
+                    game_loop(3)
+                    break
+
+        screen.fill(background_color)
+        screen.blit(winobj, winrect)
+        screen.blit(playobj, playrect)
+        pygame.display.update()
 
 def game_loop(score_required_to_win):
     paddle_1 = Paddle(x=50, y=height / 2, paddle_width=5, paddle_height=60, speed=400, up_key=pygame.K_w,
@@ -30,13 +84,14 @@ def game_loop(score_required_to_win):
 
     ball = Ball(x=width / 2, y=height / 2, radius=10, speed_x=400, color=(0, 255, 255))
 
+    print("game on")
     while True:
         # Exits game if pressed space or tries to quit.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 quit()
 
@@ -56,13 +111,9 @@ def game_loop(score_required_to_win):
         # Check if a player has won, and if so print which player won, and exit the game (return).
         #   This should take <10 lines of code (assuming you don't make it more fancy)
         if player_1_score == score_required_to_win:
-            print("Player 1 won!")
-            pygame.quit()
-            quit()
+            end_screen(1)
         elif player_2_score == score_required_to_win:
-            print("Player 2 won!")
-            pygame.quit()
-            quit()
+            end_screen(2)
 
         # This is neccessary code to see screen updated.
         pygame.display.update()
@@ -279,5 +330,5 @@ class Ball:
     def set_y_high(self, num):
         self.y = num - self.radius
 
-# Call the game loop, with some initial amount.
-game_loop(3)
+# Call the main menu
+main_menu()
