@@ -35,8 +35,8 @@ def count_letter(string, char):
 # Part D
 def primes():
     primes = []
-    for i in range(50):
-        if factorial(i - 1) + 1 % i == 0:
+    for i in range(1, 50):
+        if (factorial(i - 1) + 1) % i == 0:
             primes.append(i)
     return primes
 
@@ -62,7 +62,7 @@ def give_char(n):
 
 def alphabet() -> list:
     alpha = []
-    for i in range(25):
+    for i in range(26):
         alpha.append(give_char(i))
     return alpha
 
@@ -78,12 +78,14 @@ def equalfunky(m):
 
 # Part I
 def most_frequent(string: str):
-    current_count = 0
     old_count = 0
     frequent_letter = ''
     for x in alphabet():
         current_count = count_letter(string, x)
         if current_count > old_count:
             frequent_letter = x
+            old_count = current_count
 
-    return alphabet()[frequent_letter]
+    return alphabet()[int(frequent_letter)]
+
+most_frequent("AABBCCC")

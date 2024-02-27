@@ -11,9 +11,6 @@ screen = pygame.display.set_mode((width, height))
 
 background_color = (0, 0, 0)
 
-player_1_score = 0
-player_2_score = 0
-
 # Make sure your game operates on same speed, regardless of fps.
 fps = 60
 clock = pygame.time.Clock()
@@ -67,7 +64,6 @@ def end_screen(player_won):
                     pygame.quit()
                     quit()
                 if event.key == pygame.K_SPACE:
-                    print("restarting game")
                     game_loop(3)
                     break
 
@@ -84,7 +80,6 @@ def game_loop(score_required_to_win):
 
     ball = Ball(x=width / 2, y=height / 2, radius=10, speed_x=400, color=(0, 255, 255))
 
-    print("game on")
     while True:
         # Exits game if pressed space or tries to quit.
         for event in pygame.event.get():
@@ -99,7 +94,7 @@ def game_loop(score_required_to_win):
         draw_background()
 
         # Draw scoreboard
-        draw_scoreboard(player_1_score, player_2_score)
+        draw_scoreboard(paddle_1.score, paddle_2.score)
 
         # Update the two paddles.
         paddle_1.update(1/fps)
@@ -110,9 +105,9 @@ def game_loop(score_required_to_win):
 
         # Check if a player has won, and if so print which player won, and exit the game (return).
         #   This should take <10 lines of code (assuming you don't make it more fancy)
-        if player_1_score == score_required_to_win:
+        if paddle_1.score == score_required_to_win:
             end_screen(1)
-        elif player_2_score == score_required_to_win:
+        elif paddle_1.score == score_required_to_win:
             end_screen(2)
 
         # This is neccessary code to see screen updated.
@@ -141,12 +136,12 @@ def draw_background():
     # Draw some gray dotted line in the (vertical) middle
     #   You will want to use a loop for this, and draw lines/rectangles to do so.
     #   Do this step after getting rest of code done.
-    dotRect = pygame.Rect(0, 0, 5, 5)
+    dot_rect = pygame.Rect(0, 0, 5, 5)
     dot_x = screen.get_width() / 2
     dot_y = 0
     while True:
-        dotRect.center = (dot_x, dot_y)
-        pygame.draw.rect(screen, (255,255,255), dotRect)
+        dot_rect.center = (dot_x, dot_y)
+        pygame.draw.rect(screen, (255,255,255), dot_rect)
         dot_y += 20
         if dot_y > screen.get_height():
             break
@@ -277,14 +272,12 @@ class Ball:
 
     def account_score_increases(self, left_paddle: Paddle, right_paddle: Paddle):
         if self.get_x_low() < 0:
-            # Reset ball, increment the right paddle's score.
-            global player_2_score
+            # Reset ball, increment the left paddle's score.
+            left_paddle.score += 1
             self.reset_ball()
-            player_2_score += 1
         elif self.get_x_high() > width:
-            global player_1_score
+            right_paddle.score += 1
             self.reset_ball()
-            player_1_score += 1
 
     def reset_ball(self):
         """
